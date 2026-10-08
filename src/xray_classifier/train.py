@@ -48,22 +48,25 @@ def evaluate(model, loader, criterion, device):
     return running_loss / total, correct / total
 
 
-def train_model(model, train_loader, test_loader, criterion, optimizer, device,
-                 num_epochs=10, checkpoint_path="best_model.pt"):
-    """Train for a number of epochs, saving the best checkpoint by test accuracy."""
-    best_test_acc = 0.0
+def train_model(model, train_loader, val_loader, criterion, optimizer, device,
+                num_epochs=10, checkpoint_path="best_model.pt"):
+    """Train for a number of epochs, saving the best checkpoint by validation accuracy.
+
+    The test set is not used here. Evaluate it once, at the end, with the saved checkpoint.
+    """
+    best_val_acc = 0.0
 
     for epoch in range(num_epochs):
         train_loss, train_acc = train_one_epoch(model, train_loader, criterion, optimizer, device)
-        test_loss, test_acc = evaluate(model, test_loader, criterion, device)
+        val_loss, val_acc = evaluate(model, val_loader, criterion, device)
 
         print(f"Epoch {epoch+1}/{num_epochs} | "
               f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f} | "
-              f"Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.4f}")
+              f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
 
-        if test_acc > best_test_acc:
-            best_test_acc = test_acc
+        if val_acc > best_val_acc:
+            best_val_acc = val_acc
             torch.save(model.state_dict(), checkpoint_path)
-            print(f"  → New best model saved (Test Acc: {test_acc:.4f})")
+            print(f"  -> New best model saved (Val Acc: {val_acc:.4f})")
 
-    return best_test_acc
+    return best_val_acc
