@@ -1,7 +1,8 @@
 """Dataset loading and preprocessing for chest X-ray classification."""
 
+from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
 
 IMG_SIZE = 224
 
@@ -16,14 +17,25 @@ def get_transforms():
     ])
 
 
-def get_dataloaders(train_dir, test_dir, batch_size=32):
-    """Build train and test DataLoaders from ImageFolder-structured directories."""
-    transform = get_transforms()
+def get_dataloaders(train_dir, test_dir, batch_size=32, val_fraction=0.15, seed=42):
+    """Build train, validation and test DataLoaders from ImageFolder-structured directories.
 
-    train_dataset = datasets.ImageFolder(root=train_dir, transform=transform)
+    A stratified share of the training images is held back as a validation set.
+    It is used to pick the best checkpoint. The test set is only for the final evaluation.
+    """
+    transform = get_transforms()
+    full_train = datasets.ImageFolder(root=train_dir, transform=transform)
     test_dataset = datasets.ImageFolder(root=test_dir, transform=transform)
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    train_idx, val_idx = train_test_split(
+        list(range(len(full_train))),
+        test_size=val_fraction,
+        random_state=seed,
+        stratify=full_train.targets,
+    )
+
+    train_loader = DataLoader(Subset(full_train, train_idx), batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(Subset(full_train, val_idx), batch_size=batch_size, shuffle=False)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-    return train_loader, test_loader, train_dataset.classes
+    return train_loader, val_loader, test_loader, full_train.classes
