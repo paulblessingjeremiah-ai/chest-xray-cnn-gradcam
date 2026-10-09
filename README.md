@@ -39,12 +39,20 @@ The model was trained for 10 epochs, with the best checkpoint (by test accuracy)
 
 ## Grad-CAM Visualizations
 
-Grad-CAM heatmaps confirm the model focuses on lung tissue when making predictions, rather than relying on incidental image artifacts (such as text labels burned into the corners of the scans).
+Grad-CAM shows which parts of the image the model relied on for a prediction. The maps are coarse (about 7 x 7 cells stretched over the image), so they show where the model looked, not where disease is.
 
 ![COVID Example](results/gradcam_examples/COVID.png)
 ![Normal Example](results/gradcam_examples/NORMAL.png)
 ![Pneumonia Example](results/gradcam_examples/PNEUMONIA.png)
 ![TB Example](results/gradcam_examples/TB.png)
+
+For the COVID, Normal and TB examples, the strongest activation falls mostly inside the chest. For the Pneumonia example, it concentrates in the lower corners and along the sides, partly outside the lungs, so this example does not show the model looking at lung tissue. One example per class is not enough to conclude whether the model uses image borders or markers.
+
+### Misclassified cases
+
+![Misclassified examples](results/gradcam_errors.png)
+
+Six of the 13 test errors are shown (every second one). All six involve the COVID class. Two COVID images predicted as Pneumonia appear tightly cropped, with heat at the image edge. One TB image predicted as COVID is a small X-ray on a mostly blank canvas, which looks like a data problem. The maps do not show a single clear cause for the errors.
 
 ## Installation
 
@@ -61,6 +69,8 @@ pytest tests/
 ## Limitations
 
 This model was trained and evaluated on a single-source dataset of 2,000 images. While test accuracy is high (99%), this may partly reflect the dataset's relatively clean, well-separated class characteristics rather than performance that would generalize to more diverse, real-world clinical data from multiple hospitals or imaging equipment. Training also showed signs of mild overfitting (training accuracy reached ~100% within the first epoch), addressed here through best-checkpoint saving based on test performance, though further validation on external datasets would be needed before any real-world application.
+
+- **Image style.** The example images differ in framing, borders and markers, and some are unusual (for example a small X-ray on a mostly blank canvas). Whether the model uses image-style cues, instead of or alongside the lungs, was not ruled out.
 
 This project is intended for educational and research purposes only and is not designed for clinical diagnosis or deployment in a clinical setting.
 
