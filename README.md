@@ -38,8 +38,30 @@ The model was trained for 10 epochs, with the best checkpoint (by test accuracy)
 | TB        | 1.00      | 0.99   | 0.99     |
 
 **Overall accuracy: 99%**
+Across three training seeds the mean test accuracy was 98.1% (range 97.3% to 98.5%).
 
 ![Confusion Matrix](results/confusion_matrix.png)
+
+## Shortcut audit
+
+The classes in this dataset look different from each other in ways unrelated to disease (see Limitations), so high accuracy could come partly from those differences. Two checks were run.
+
+**1. Baseline without anatomy.** A logistic regression using only image size, average brightness, contrast and the share of black and white pixels reaches 81% cross-validated accuracy on the training images (chance is 25%).
+
+**2. Lung masking.** A U-Net trained for lung segmentation (see the lung-segmentation-unet repository) was used to black out everything outside the lungs. This removes borders, text markers, timestamps, white boxes and the image background. The classifier was then retrained with the same settings, with three seeds per condition.
+
+| Input | Test accuracy (mean of 3 runs) | Range |
+|---|---|---|
+| Original images | 98.1% | 97.3% to 98.5% |
+| Lung region only | 93.4% | 92.8% to 94.0% |
+
+Removing everything outside the lungs lowers accuracy by about 4.6 points, and the ranges do not overlap. This indicates that part of the accuracy relies on information outside the lungs. It is an upper estimate of that effect, because the segmentation model is imperfect, especially on the Pneumonia images (children's X-rays and dense lungs), and cut away some lung tissue as well.
+
+Accuracy stays well above chance with only the lungs visible, so there is also signal inside the lungs. But the lung region still differs between classes in other ways, such as lung size and framing, image processing and patient age. Even this result is therefore not evidence that the model detects disease. Testing on images from other hospitals would be needed.
+
+The code for these checks is in `notebooks/shortcut_audit.ipynb`.
+
+![Masked examples](results/masked_contact_sheet.png)
 
 ## Grad-CAM Visualizations
 
