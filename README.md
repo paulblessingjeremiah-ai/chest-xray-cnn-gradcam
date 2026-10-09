@@ -12,7 +12,7 @@ Beyond classification, the project implements Grad-CAM (Gradient-weighted Class 
 
 ## Dataset
 
-A four-class chest X-ray collection (COVID-19, Normal, Pneumonia, Tuberculosis) that appears to be compiled from several public sources. The exact sources and licences are being confirmed, and this section will be updated with citations.
+A four-class chest X-ray collection (COVID-19, Normal, Pneumonia, Tuberculosis) that appears to be compiled from several public sources. All 650 Pneumonia images were matched to images in the Kermany et al. dataset (children aged one to five, Guangzhou Women and Children's Medical Center, CC BY 4.0), resized to 299 x 299. The Normal, COVID-19 and TB images did not match Kermany, and their sources have not been confirmed.
 
 - Classes: COVID-19, Normal, Pneumonia, Tuberculosis
 - Training set: 2,000 images (500 per class). 15% of them (300 images, stratified by class) are held out as a validation set, so 1,700 are used for fitting.
