@@ -60,6 +60,8 @@ The classes in this dataset look different from each other in ways unrelated to 
 
 **3. Lung masking.** A U-Net trained for lung segmentation (see the lung-segmentation-unet repository) was used to black out everything outside the lungs. This removes borders, text markers, timestamps, white boxes and the image background. The classifier was then retrained with the same settings, with three seeds per condition, on the de-duplicated data.
 
+A short write-up of the shortcut audit is in [audit_writeup.pdf](audit_writeup.pdf).
+
 | Input | Test accuracy (mean of 3 runs) | Range |
 |---|---|---|
 | Original images | 98.2% | 97.9% to 98.4% |
